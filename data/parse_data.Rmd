@@ -1,0 +1,88 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+library(tidyverse)
+library(janitor)
+```
+
+```{r}
+meta_df <- read_delim("smhi-opendata_1_52230_20220810_195904.csv", delim=";") %>% head(5)
+data_df <- read_delim("smhi-opendata_1_52230_20220810_195904.csv") %>%
+  tail(-6) %>%
+  janitor::clean_names() %>%
+  rename(
+    date=stationsnamn,
+    time=stationsnummer,
+    temperature=stationsnat,
+    quality=mathojd_meter_over_marken
+    ) %>%
+  mutate(quality=quality %>% gsub(";.*", "", .))
+  
+```
+
+When were the filtered ones? Were they high or low? Let's histogram!
+
+```{r}
+filtered_data_df <- data_df %>%
+  filter(quality == "G")
+```
+
+
+```{r}
+data <- filtered_data_df %>%
+  mutate(temperature=as.numeric(temperature)) %>%
+  mutate(year=date %>% gsub("-.*", "", .)) %>%
+  mutate(month=date %>% gsub("....-", "", .) %>% gsub("-.*", "", .)) %>% 
+  group_by(year, month) %>%
+  summarize(temp=median(temperature), sd=sd(temperature), nbr=n())
+
+jan_data <- filtered_data_df %>%
+  mutate(temperature=as.numeric(temperature)) %>%
+  mutate(year=date %>% gsub("-.*", "", .)) %>%
+  mutate(month=date %>% gsub("....-", "", .) %>% gsub("-.*", "", .)) %>% 
+  filter(month=="01") %>%
+  group_by(year) %>%
+  summarize(temp=median(temperature), sd=sd(temperature), nbr=n()) %>%
+  mutate(month="jan")
+
+combined <- rbind(july_data, jan_data)
+
+data %>%
+  ggplot(aes(x=year, y=temp, color=nbr)) + 
+  geom_point() +
+  scale_x_discrete(guide = guide_axis(angle = 90), breaks = agg_data$year[seq(1, nrow(agg_data), 3)]) +
+  theme_bw() +
+  
+  facet_wrap(month ~ .)
+
+    
+#%>%
+#  group_by(date) %>%
+#  summarize(temperature=median(temperature))
+
+data_df %>% nrow()
+
+data_df %>%
+  mutate(temperature=as.numeric(temperature)) %>%
+  ggplot(aes(x=temperature)) + geom_histogram(bins=100)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

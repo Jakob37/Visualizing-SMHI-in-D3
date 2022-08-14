@@ -38,7 +38,7 @@ async function addMap(svg, dimensions) {
     const map_data = await d3.json(
         "https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson"
     );
-    console.log(map_data)
+    console.log(map_data);
 
     // Filter data
     map_data.features = map_data.features.filter(function (d) {
@@ -47,7 +47,7 @@ async function addMap(svg, dimensions) {
         // return d.properties.name == "France";
     });
 
-    console.log('remaining features', map_data.features)
+    console.log("remaining features", map_data.features);
 
     // Draw the map
     svg.append("g")
@@ -93,7 +93,6 @@ async function addDots(svg, dimensions) {
     yearAxis.tickFormat((label, i) => {
         return i % 10 != 0 ? " " : label;
     });
-
     svg.append("g")
         .attr(
             "transform",
@@ -114,11 +113,43 @@ async function addDots(svg, dimensions) {
             })
         );
 
+    const tempAxis = d3.axisLeft().scale(tempScale);
+    svg.append("g")
+        .attr("transform", `translate(${margin.left}, 0)`)
+        .call(tempAxis);
+
+    const tooltip = d3
+        .select("body")
+        .append("div")
+        .attr("class", "tooltip")
+        .style("position", "absolute")
+        .text("test")
+        .style("background", "darkblue")
+        .style("border-radius", "8px")
+        .style("padding", "4px")
+        .style("text-align", "center")
+        .style("color", "white")
+        .style("opacity", 1);
+
     svg.selectAll("circle")
         .data(july_data)
         .join("circle")
         .attr("cx", (d) => yearScale(d.year))
         .attr("cy", (d) => tempScale(d.temp))
-        .attr("r", 2)
-        .style("fill", "blue");
+        .attr("r", 5)
+        .style("fill", "blue")
+        .on("mouseover", function (event, d) {
+            d3.select(this).transition().duration(50).attr("opacity", 0.6);
+            tooltip.transition().duration(50).style("opacity", 1);
+
+            tooltip
+                .html("test")
+                .style("left", (event.pageX + 10) + "px")
+                .style("top", (event.pageY - 15) + "px")
+                .text(d.temp)
+        })
+        .on("mouseout", function (event, d) {
+            d3.select(this).transition().duration(50).attr("opacity", 1);
+            tooltip.transition().duration(50).style("opacity", 0);
+        });
 }

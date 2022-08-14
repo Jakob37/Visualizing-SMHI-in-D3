@@ -123,7 +123,6 @@ async function addDots(svg, dimensions) {
         .append("div")
         .attr("class", "tooltip")
         .style("position", "absolute")
-        .text("test")
         .style("background", "darkblue")
         .style("border-radius", "8px")
         .style("padding", "4px")
@@ -131,12 +130,25 @@ async function addDots(svg, dimensions) {
         .style("color", "white")
         .style("opacity", 1);
 
+    const line = d3
+        .line(
+            (d) => yearScale(d.year),
+            (d) => tempScale(d.temp)
+        )
+        .curve(d3.curveCatmullRom.alpha(0.5));
+
+    svg.append("path")
+        .style("fill", "none")
+        .style("stroke", "lightgray")
+        .datum(july_data)
+        .attr("d", line);
+
     svg.selectAll("circle")
         .data(july_data)
         .join("circle")
         .attr("cx", (d) => yearScale(d.year))
         .attr("cy", (d) => tempScale(d.temp))
-        .attr("r", 5)
+        .attr("r", 2)
         .style("fill", "blue")
         .on("mouseover", function (event, d) {
             d3.select(this).transition().duration(50).attr("opacity", 0.6);
@@ -144,9 +156,9 @@ async function addDots(svg, dimensions) {
 
             tooltip
                 .html("test")
-                .style("left", (event.pageX + 10) + "px")
-                .style("top", (event.pageY - 15) + "px")
-                .text(d.temp)
+                .style("left", event.pageX + 10 + "px")
+                .style("top", event.pageY - 15 + "px")
+                .text(d.temp);
         })
         .on("mouseout", function (event, d) {
             d3.select(this).transition().duration(50).attr("opacity", 1);

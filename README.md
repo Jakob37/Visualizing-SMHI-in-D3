@@ -1,3 +1,5 @@
+Work in progress version: https://jakob37.github.io/Visualizing-SMHI-in-D3/
+
 Aims:
 
 * Get a better understanding of the meteorological data in Sweden (which stretches back to the 19th century)

@@ -1,4 +1,7 @@
+import { helloFn } from "./modules/util.js";
+
 console.log("Loading smihi");
+helloFn();
 
 const dates = [23, 24, 25, 26, 27, 28, 29];
 const timeSeriesData = [1, 4, 3, 5, 6, 4, 5];
@@ -165,3 +168,5 @@ async function addDots(svg, dimensions) {
             tooltip.transition().duration(50).style("opacity", 0);
         });
 }
+
+export { main };
